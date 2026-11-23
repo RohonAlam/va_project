@@ -1,0 +1,48 @@
+site_name: Single Object Tracking with a Dynamic Camera
+site_description: CPU-based single-object visual tracking with camera-motion compensation
+site_url: https://rohonalam.github.io/va_project/
+repo_url: https://github.com/RohonAlam/va_project
+repo_name: RohonAlam/va_project
+
+theme:
+  name: material
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: blue
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.tabs
+    - navigation.top
+    - toc.integrate
+    - content.code.copy
+    - content.code.annotate
+
+nav:
+  - Project Report: index.md
+  - Setup & Installation: Setup_Guide.md
+
+markdown_extensions:
+  - admonition
+  - attr_list
+  - tables
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+extra_javascript:
+  - https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js
+  - https://unpkg.com/mermaid@11/dist/mermaid.min.js
+  - js/mermaid-init.js

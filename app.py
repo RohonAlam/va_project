@@ -61,7 +61,7 @@ def run_tracking(path, box, tracker_name, compensate, max_width, max_frames, pro
     out_path = raw_path.replace(".mp4", "_h264.mp4")
     subprocess.run([imageio_ffmpeg.get_ffmpeg_exe(), "-y", "-i", raw_path, "-vcodec", "libx264",
                     "-pix_fmt", "yuv420p", "-loglevel", "error", out_path], check=True)
-    return out_path, pd.DataFrame(rows), fps
+    return out_path, pd.DataFrame(rows), fps, scale
 
 
 st.title("Single Object Tracking with a Dynamic Camera")
@@ -75,6 +75,7 @@ with st.sidebar:
     max_frames = st.number_input("Max frames to process", 50, 5000, 600, step=50)
 
 uploaded = st.file_uploader("Upload a video", type=["mp4", "avi", "mov", "mkv"])
+gt_file = st.file_uploader("Optional ground-truth CSV (frame,x,y,w,h)", type=["csv"])
 if uploaded:
     if st.session_state.get("_name") != uploaded.name:
         tmp = tempfile.NamedTemporaryFile(suffix=os.path.splitext(uploaded.name)[1], delete=False)
@@ -109,13 +110,45 @@ if uploaded:
         st.session_state["result"] = (out, df, fps)
 
     if "result" in st.session_state:
-        out, df, fps = st.session_state["result"]
+        out, df, fps, scale = st.session_state["result"]
         st.video(out)
         lost = int((df.status == "lost").sum())
         m1, m2, m3 = st.columns(3)
         m1.metric("Frames processed", len(df))
         m2.metric("Frames flagged lost", lost)
         m3.metric("Frames with confident track", f"{1 - lost / len(df):.1%}")
+        if gt_file is not None:
+            try:
+                gt = pd.read_csv(gt_file)
+                required = {"frame", "x", "y", "w", "h"}
+                if not required.issubset(gt.columns):
+                    st.error("Ground-truth CSV must contain: frame,x,y,w,h")
+                else:
+                    merged = df.merge(gt[list(required)], on="frame", how="inner", suffixes=("_pred", "_gt"))
+                    if not merged.empty:
+                        for key in ("x", "y", "w", "h"):
+                            merged[f"{key}_gt"] = merged[f"{key}_gt"].astype(float) * scale
+                        x1 = merged[["x_pred", "x_gt"]].max(axis=1)
+                        y1 = merged[["y_pred", "y_gt"]].max(axis=1)
+                        x2 = pd.concat([merged.x_pred + merged.w_pred, merged.x_gt + merged.w_gt], axis=1).min(axis=1)
+                        y2 = pd.concat([merged.y_pred + merged.h_pred, merged.y_gt + merged.h_gt], axis=1).min(axis=1)
+                        inter = (x2 - x1).clip(lower=0) * (y2 - y1).clip(lower=0)
+                        union = merged.w_pred * merged.h_pred + merged.w_gt * merged.h_gt - inter
+                        merged["iou"] = inter / union.replace(0, float("nan"))
+                        pcx = merged.x_pred + merged.w_pred / 2
+                        pcy = merged.y_pred + merged.h_pred / 2
+                        gcx = merged.x_gt + merged.w_gt / 2
+                        gcy = merged.y_gt + merged.h_gt / 2
+                        merged["cle_px"] = ((pcx - gcx) ** 2 + (pcy - gcy) ** 2) ** 0.5
+                        e1, e2, e3 = st.columns(3)
+                        e1.metric("Mean IoU", f"{merged.iou.mean():.3f}")
+                        e2.metric("Success Rate @ 0.50", f"{(merged.iou >= 0.5).mean():.1%}")
+                        e3.metric("Mean CLE (px)", f"{merged.cle_px.mean():.1f}")
+                        st.caption(f"Metrics computed over {len(merged)} frames with matching annotations. GT coordinates are assumed to refer to the original video resolution.")
+                    else:
+                        st.warning("No frame indices overlap between predictions and ground truth.")
+            except Exception as exc:
+                st.error(f"Could not evaluate ground truth: {exc}")
         st.dataframe(df, use_container_width=True, height=250)
         d1, d2 = st.columns(2)
         d1.download_button("Download trajectory CSV", df.to_csv(index=False), "trajectory.csv", "text/csv")
