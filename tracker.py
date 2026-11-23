@@ -14,15 +14,29 @@ import cv2
 import numpy as np
 
 
-def make_cv_tracker(name="CSRT"):
-    name = name.upper()
+def _find_factory(name):
     for mod in (cv2, getattr(cv2, "legacy", None)):
         if mod is None:
             continue
         factory = getattr(mod, f"Tracker{name}_create", None)
         if factory is not None:
-            return factory()
-    raise RuntimeError(f"Tracker '{name}' not available in this OpenCV build")
+            return factory
+    return None
+
+
+def available_trackers():
+    """Trackers present in this OpenCV build (CSRT/KCF need opencv-contrib on 4.x)."""
+    return [n for n in ("CSRT", "KCF", "MIL") if _find_factory(n) is not None]
+
+
+def make_cv_tracker(name="CSRT"):
+    factory = _find_factory(name.upper())
+    if factory is None:
+        avail = available_trackers()
+        if not avail:
+            raise RuntimeError("No OpenCV tracker available; install opencv-contrib-python-headless")
+        factory = _find_factory(avail[0])
+    return factory()
 
 
 def _to3(M):

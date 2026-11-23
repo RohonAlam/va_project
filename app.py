@@ -7,7 +7,7 @@ import imageio_ffmpeg
 import pandas as pd
 import streamlit as st
 
-from tracker import DynamicCameraTracker, draw
+from tracker import DynamicCameraTracker, available_trackers, draw
 
 st.set_page_config(page_title="Dynamic Camera Object Tracker", layout="wide")
 
@@ -69,7 +69,7 @@ st.caption("Camera-motion compensation (optical flow + RANSAC) + CSRT appearance
 
 with st.sidebar:
     st.header("Settings")
-    tracker_name = st.selectbox("Appearance tracker", ["CSRT", "KCF", "MIL"], index=0)
+    tracker_name = st.selectbox("Appearance tracker", available_trackers(), index=0)
     compensate = st.toggle("Camera motion compensation", value=True)
     max_width = st.select_slider("Processing width (px)", [480, 640, 800, 960, 1280], value=640)
     max_frames = st.number_input("Max frames to process", 50, 5000, 600, step=50)
