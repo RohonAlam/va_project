@@ -11,6 +11,26 @@ from tracker import DynamicCameraTracker, available_trackers, draw
 
 st.set_page_config(page_title="Dynamic Camera Object Tracker", layout="wide")
 
+# Keep the playback player compact on both desktop and mobile layouts.
+st.markdown("""
+<style>
+/* Streamlit's video element otherwise expands to the full column width. */
+div[data-testid="stVideo"] {
+    width: min(100%, 420px) !important;
+    max-width: 420px !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+}
+div[data-testid="stVideo"] video {
+    width: 100% !important;
+    max-width: 420px !important;
+    max-height: 260px !important;
+    height: auto !important;
+    object-fit: contain !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 
 def read_first_frame(path):
     cap = cv2.VideoCapture(path)
@@ -117,10 +137,8 @@ if uploaded:
 
     if "result" in st.session_state:
         out, df, fps, scale = st.session_state["result"]
-        # Keep the annotated video narrower than the full page.
-        _, video_col, _ = st.columns([1, 2, 1])
-        with video_col:
-            st.video(out)
+        # CSS above enforces a fixed maximum player width even on wide layouts.
+        st.video(out)
         lost = int((df.status == "lost").sum())
         m1, m2, m3 = st.columns(3)
         m1.metric("Frames processed", len(df))
