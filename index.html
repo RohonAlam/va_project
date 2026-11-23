@@ -1,0 +1,932 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="CPU-based single-object visual tracking with camera-motion compensation">
+      
+      
+      
+        <link rel="canonical" href="https://rohonalam.github.io/va_project/">
+      
+      
+      
+        <link rel="next" href="Setup_Guide/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Single Object Tracking with a Dynamic Camera</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#single-object-tracking-with-a-dynamic-camera" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Single Object Tracking with a Dynamic Camera" class="md-header__button md-logo" aria-label="Single Object Tracking with a Dynamic Camera" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Single Object Tracking with a Dynamic Camera
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Project Report
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="blue"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/RohonAlam/va_project" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    RohonAlam/va_project
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="Tabs" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+    
+  
+  
+    <li class="md-tabs__item md-tabs__item--active">
+      <a href="." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Project Report
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="Setup_Guide/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Setup & Installation
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+  
+
+<nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Single Object Tracking with a Dynamic Camera" class="md-nav__button md-logo" aria-label="Single Object Tracking with a Dynamic Camera" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Single Object Tracking with a Dynamic Camera
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/RohonAlam/va_project" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    RohonAlam/va_project
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Report
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="." class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Project Report
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-introduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Introduction
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-project-demonstration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Project demonstration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-pipeline-overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Pipeline overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-method" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Method
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Method">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-initial-target-region" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Initial target region
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-background-motion-estimation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Background motion estimation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-reference-frame-accumulation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Reference-frame accumulation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-appearance-tracking-and-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Appearance tracking and verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-evaluation-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Evaluation protocol
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Evaluation protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-ablation-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Ablation matrix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-experimental-results" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Experimental results
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-running-the-application-and-benchmark" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Running the application and benchmark
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-conclusion-and-future-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Conclusion and future work
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="Setup_Guide/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Setup & Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="single-object-tracking-with-a-dynamic-camera">Single Object Tracking with a Dynamic Camera</h1>
+<p><strong>Author:</strong> <a href="https://github.com/RohonAlam">Rohon Alam</a><br />
+<strong>Repository:</strong> <a href="https://github.com/RohonAlam/va_project">RohonAlam/va_project</a></p>
+<table>
+<thead>
+<tr>
+<th>Attribute</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Domain</td>
+<td>Computer Vision / Visual Object Tracking</td>
+</tr>
+<tr>
+<td>Stack</td>
+<td>Python, OpenCV-contrib, NumPy, Pandas, Streamlit, FFmpeg</td>
+</tr>
+<tr>
+<td>Execution</td>
+<td>CPU-based; no learned detector or GPU required</td>
+</tr>
+<tr>
+<td>Main idea</td>
+<td>Estimate background motion, stabilize frames, then track one selected object</td>
+</tr>
+</tbody>
+</table>
+<p><a href="Setup_Guide/">Setup and installation guide</a></p>
+<hr />
+<h2 id="1-introduction">1. Introduction</h2>
+<p>Single-object tracking estimates the location of a selected object throughout a video, given its initial bounding box. Camera movement complicates this task: a pan, tilt, rotation, or handheld shake can move most background pixels between consecutive frames. A local appearance tracker may then lose the target or drift onto a similar background region.</p>
+<p>This project implements a classical CPU-oriented pipeline. It estimates global background motion using Shi–Tomasi features and pyramidal Lucas–Kanade optical flow, rejects inconsistent correspondences with RANSAC, and uses the resulting similarity transform to warp frames into a reference coordinate system. An OpenCV appearance tracker (CSRT, KCF, or MIL) operates on the stabilized frames. Template correlation verifies its prediction, while velocity-based coasting and local multi-scale template matching attempt recovery when confidence is low.</p>
+<p>The method is designed for a manually initialized, single target. It is not a general object detector and does not automatically discover or re-identify arbitrary objects.</p>
+<h2 id="2-project-demonstration">2. Project demonstration</h2>
+<p>Add a real screen recording or annotated output after capturing one:</p>
+<div class="highlight"><pre><span></span><code>docs/assets/demo.gif
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>![<span class="nt">Tracking demonstration</span>](<span class="na">assets/demo.gif</span>)
+</code></pre></div>
+<p>The repository currently does not include a demo asset. Do not interpret this placeholder as a recorded experiment.</p>
+<h2 id="3-pipeline-overview">3. Pipeline overview</h2>
+<pre class="mermaid"><code>flowchart TD
+    A[Input video] --&gt; B[Select initial target box]
+    B --&gt; C[Detect background features]
+    C --&gt; D[Lucas-Kanade optical flow]
+    D --&gt; E[RANSAC similarity transform]
+    E --&gt; F[Accumulate reference transform]
+    F --&gt; G[Warp current frame]
+    G --&gt; H[CSRT / KCF / MIL update]
+    H --&gt; I[Template correlation verification]
+    I --&gt; J{Score above threshold?}
+    J -- Yes --&gt; K[Update box, velocity, template]
+    J -- No --&gt; L[Velocity coasting]
+    L --&gt; M[Multi-scale template re-detection]
+    K --&gt; N[Map box to original image]
+    M --&gt; N
+    N --&gt; O[Output box, status, score]</code></pre>
+<h2 id="4-method">4. Method</h2>
+<h3 id="41-initial-target-region">4.1 Initial target region</h3>
+<p>The Streamlit interface defines the target box using percentages of the original frame dimensions. For frame width <span class="arithmatex">\(W\)</span>, height <span class="arithmatex">\(H\)</span>, and normalized coordinates <span class="arithmatex">\((u,v,a,b)\)</span>, the pixel box is</p>
+<div class="arithmatex">\[
+x=uW,\quad y=vH,\quad w=aW,\quad h=bH.
+\]</div>
+<p>When processing width is reduced, both the frame and initial box are scaled by the same factor</p>
+<div class="arithmatex">\[
+\alpha=\min\left(1,\frac{W_{\max}}{W}\right).
+\]</div>
+<p>Ground-truth CSV annotations supplied to the app or benchmark are expected to use the original video pixel coordinate system; evaluation scales them by <span class="arithmatex">\(\alpha\)</span>.</p>
+<h3 id="42-background-motion-estimation">4.2 Background motion estimation</h3>
+<p>The current target region is excluded from background feature detection. The exclusion region is padded by</p>
+<div class="arithmatex">\[
+p=0.25\max(w,h).
+\]</div>
+<p>Shi–Tomasi corners are detected in the previous grayscale frame (up to 400 candidates), then tracked into the current frame with pyramidal Lucas–Kanade optical flow. If fewer than ten usable correspondences remain, the implementation falls back to the identity transform for that frame.</p>
+<p>For valid correspondences, <code>cv2.estimateAffinePartial2D</code> estimates a 2-D similarity transform using RANSAC with a 3-pixel reprojection threshold:</p>
+<div class="arithmatex">\[
+\mathbf M_t =
+\begin{bmatrix}
+s\cos\theta &amp; -s\sin\theta &amp; t_x\\
+s\sin\theta &amp; s\cos\theta &amp; t_y
+\end{bmatrix}.
+\]</div>
+<p>This model represents translation, in-plane rotation, and uniform scale. It is not a full projective homography and cannot represent arbitrary perspective or parallax.</p>
+<h3 id="43-reference-frame-accumulation">4.3 Reference-frame accumulation</h3>
+<p>Let <span class="arithmatex">\(\mathbf M_t\)</span> map points from the previous image to the current image. The implementation accumulates a transform <span class="arithmatex">\(\mathbf A_t\)</span> from current-image coordinates to reference coordinates:</p>
+<div class="arithmatex">\[
+\mathbf A_t=\mathbf A_{t-1}\mathbf M_t^{-1},
+\qquad
+I_t^{\mathrm{stab}}=\mathcal W(I_t;\mathbf A_t).
+\]</div>
+<p>If the stabilized target approaches a 5% canvas margin, the implementation re-anchors the reference frame to limit long-term drift and clipping. The box is then mapped back to original-image coordinates using <span class="arithmatex">\(\mathbf A_t^{-1}\)</span>.</p>
+<h3 id="44-appearance-tracking-and-verification">4.4 Appearance tracking and verification</h3>
+<p>The selected OpenCV tracker updates the target box on the stabilized frame. A candidate patch is converted to grayscale and resized to <span class="arithmatex">\(48\times48\)</span>. Its normalized correlation with the current template is computed using <code>cv2.TM_CCOEFF_NORMED</code>:</p>
+<div class="arithmatex">\[
+\rho(P,T)=
+\frac{\sum_i(P_i-\bar P)(T_i-\bar T)}
+{\sqrt{\sum_i(P_i-\bar P)^2\sum_i(T_i-\bar T)^2}}.
+\]</div>
+<p>A prediction is accepted when its score is at least the configured tracking threshold (default <span class="arithmatex">\(0.30\)</span>). When the score exceeds <span class="arithmatex">\(0.80\)</span>, the template is updated by an exponential blend:</p>
+<div class="arithmatex">\[
+T_t=0.9T_{t-1}+0.1P_t.
+\]</div>
+<p>When verification fails, the tracker increments its lost counter and coasts the box using a smoothed velocity estimate:</p>
+<div class="arithmatex">\[
+\mathbf v_t=0.7\mathbf v_{t-1}+0.3(\mathbf c_t-\mathbf c_{t-1}),
+\qquad
+\hat{\mathbf c}_{t+1}=\mathbf c_t+0.9\mathbf v_t.
+\]</div>
+<p>It then searches a local region at scales <span class="arithmatex">\(0.9,1.0,1.1\)</span>, comparing both the adaptive and initial templates. A detection is accepted when its correlation reaches the re-detection threshold (default <span class="arithmatex">\(0.55\)</span>).</p>
+<p><strong>Limitations:</strong> template correlation can be unreliable under strong appearance change, severe blur, full occlusion, or visually similar backgrounds. Velocity coasting is a simple constant-velocity heuristic, not a Kalman filter. Camera-motion estimation can fail when the background has too few trackable features, strong parallax, or independently moving objects.</p>
+<h2 id="5-evaluation-protocol">5. Evaluation protocol</h2>
+<p>Evaluation requires frame-level ground-truth boxes in a CSV with these columns:</p>
+<div class="highlight"><pre><span></span><code>frame,x,y,w,h
+0,120,80,64,90
+1,123,81,64,90
+2,126,82,64,90
+</code></pre></div>
+<p><code>frame</code> is a zero-based video frame index. Coordinates are pixel-valued <code>xywh</code> boxes in the original video resolution. The initial frame (frame 0) must be annotated because it initializes the tracker.</p>
+<h3 id="51-metrics">5.1 Metrics</h3>
+<p>For predicted box <span class="arithmatex">\(B_t^p\)</span> and ground-truth box <span class="arithmatex">\(B_t^g\)</span>:</p>
+<p><strong>Intersection over Union</strong></p>
+<div class="arithmatex">\[
+\operatorname{IoU}_t=
+\frac{|B_t^p\cap B_t^g|}{|B_t^p\cup B_t^g|}.
+\]</div>
+<p><strong>Success rate at 0.50</strong></p>
+<div class="arithmatex">\[
+\operatorname{SR}_{0.5}=
+\frac{1}{N}\sum_{t=1}^{N}
+\mathbb{1}[\operatorname{IoU}_t\geq0.5].
+\]</div>
+<p><strong>Center Location Error</strong></p>
+<div class="arithmatex">\[
+\operatorname{CLE}_t=
+\sqrt{(c_{x,t}^p-c_{x,t}^g)^2+
+      (c_{y,t}^p-c_{y,t}^g)^2}.
+\]</div>
+<p><strong>Lost-frame rate and tracking retention</strong></p>
+<div class="arithmatex">\[
+R_{\mathrm{lost}}=
+\frac{\#\{\text{frames with status=lost}\}}{N},
+\qquad
+R_{\mathrm{retained}}=1-R_{\mathrm{lost}}.
+\]</div>
+<p><strong>Processing throughput</strong></p>
+<div class="arithmatex">\[
+\operatorname{FPS}_{\mathrm{processing}}=
+\frac{\text{number of processed frames}}{\text{wall-clock processing time}}.
+\]</div>
+<p>Processing FPS is not necessarily equal to the source video's playback FPS. Report hardware, processing width, tracker, and compensation setting alongside it.</p>
+<h3 id="52-ablation-matrix">5.2 Ablation matrix</h3>
+<p>Run the benchmark for each available tracker and both camera-motion settings:</p>
+<table>
+<thead>
+<tr>
+<th>Tracker</th>
+<th style="text-align: right;">Compensation off</th>
+<th style="text-align: right;">Compensation on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CSRT</td>
+<td style="text-align: right;">To measure</td>
+<td style="text-align: right;">To measure</td>
+</tr>
+<tr>
+<td>KCF</td>
+<td style="text-align: right;">To measure</td>
+<td style="text-align: right;">To measure</td>
+</tr>
+<tr>
+<td>MIL</td>
+<td style="text-align: right;">To measure</td>
+<td style="text-align: right;">To measure</td>
+</tr>
+</tbody>
+</table>
+<p>Keep the video, initialization box, processing width, and frame limit fixed across each pair. Use the same annotated frame indices for all comparisons. A tracker may not be available in every OpenCV build; the application lists the trackers available in the installed build.</p>
+<h2 id="6-experimental-results">6. Experimental results</h2>
+<p>No verified ground-truth dataset or benchmark run is included in the supplied repository files. Therefore, quantitative results are intentionally not fabricated here.</p>
+<p>After running <code>benchmark.py</code>, populate a results table using the generated summary:</p>
+<table>
+<thead>
+<tr>
+<th>Video</th>
+<th>Tracker</th>
+<th>Compensation</th>
+<th style="text-align: right;">Mean IoU</th>
+<th style="text-align: right;">SR@0.50</th>
+<th style="text-align: right;">Mean CLE (px)</th>
+<th style="text-align: right;">Lost rate</th>
+<th style="text-align: right;">Processing FPS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Your sequence</td>
+<td>CSRT</td>
+<td>Off</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Your sequence</td>
+<td>CSRT</td>
+<td>On</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Your sequence</td>
+<td>KCF</td>
+<td>Off</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Your sequence</td>
+<td>KCF</td>
+<td>On</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Your sequence</td>
+<td>MIL</td>
+<td>Off</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+<tr>
+<td>Your sequence</td>
+<td>MIL</td>
+<td>On</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+<td style="text-align: right;">—</td>
+</tr>
+</tbody>
+</table>
+<p>Do not compare results from different videos or resolutions as if they were controlled ablations. Report failures and missing annotations, not just successful sequences.</p>
+<h2 id="7-running-the-application-and-benchmark">7. Running the application and benchmark</h2>
+<p>The Streamlit app supports video upload, initial box selection, tracker selection, optional camera-motion compensation, processing-width selection, and annotated-video/trajectory downloads. An optional ground-truth CSV displays IoU, success rate, and CLE for overlapping annotated frames.</p>
+<p>CLI example:</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>benchmark.py<span class="w"> </span>--video<span class="w"> </span>sample.mp4<span class="w"> </span>--gt<span class="w"> </span>ground_truth.csv<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--tracker<span class="w"> </span>CSRT<span class="w"> </span>--compensate<span class="w"> </span>--max-width<span class="w"> </span><span class="m">640</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--output<span class="w"> </span>predictions.csv
+</code></pre></div>
+<p>Omit <code>--compensate</code> for the uncompensated baseline. Run the command again with <code>--tracker KCF</code> or <code>--tracker MIL</code> to compare trackers. The command prints summary metrics and saves per-frame predictions and evaluation values to the requested CSV.</p>
+<h2 id="8-conclusion-and-future-work">8. Conclusion and future work</h2>
+<p>The project combines background-motion estimation, similarity-transform stabilization, classical appearance tracking, correlation-based verification, and local template recovery in a CPU-oriented pipeline. Its effectiveness should be established experimentally across controlled camera-motion sequences using frame-level ground truth.</p>
+<p>Potential extensions include forward-backward optical-flow consistency checks, a full affine motion model, a Kalman filter for target-state estimation, scale-adaptive tracking, color-aware appearance models, and standardized evaluation on public tracking benchmarks.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.tabs", "navigation.top", "toc.integrate", "content.code.copy", "content.code.annotate"], "search": "assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+        <script src="https://unpkg.com/mathjax@3/es5/tex-mml-chtml.js"></script>
+      
+        <script src="https://unpkg.com/mermaid@11/dist/mermaid.min.js"></script>
+      
+        <script src="js/mermaid-init.js"></script>
+      
+    
+  </body>
+</html>
