@@ -105,13 +105,22 @@ if uploaded:
     st.subheader("2. Track")
     if st.button("Run tracking", type="primary"):
         bar = st.progress(0.0)
-        with st.spinner("Tracking..."):
-            out, df, fps = run_tracking(path, box, tracker_name, compensate, max_width, int(max_frames), bar)
-        st.session_state["result"] = (out, df, fps)
+        try:
+            with st.spinner("Tracking..."):
+                out, df, fps, scale = run_tracking(
+                    path, box, tracker_name, compensate, max_width, int(max_frames), bar
+                )
+            st.session_state["result"] = (out, df, fps, scale)
+        except Exception as exc:
+            st.error(f"Tracking failed: {exc}")
+            st.exception(exc)
 
     if "result" in st.session_state:
         out, df, fps, scale = st.session_state["result"]
-        st.video(out)
+        # Keep the annotated video narrower than the full page.
+        _, video_col, _ = st.columns([1, 2, 1])
+        with video_col:
+            st.video(out)
         lost = int((df.status == "lost").sum())
         m1, m2, m3 = st.columns(3)
         m1.metric("Frames processed", len(df))
